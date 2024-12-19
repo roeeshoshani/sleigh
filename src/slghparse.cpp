@@ -110,7 +110,7 @@ extern int sleigherror(const char *str );
 #  endif
 # endif
 
-#include "slghparse.hh"
+#include "slghparse.hpp"
 /* Symbol kind.  */
 enum yysymbol_kind_t
 {

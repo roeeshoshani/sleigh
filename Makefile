@@ -1,38 +1,43 @@
-SLEIGH_SRC_NAMES := slgh_compile xml slghsymbol grammar pcodeparse slghparse slghscan ruleparse slghpatexpress slghpattern slaformat marshal opcodes translate space pcoderaw address float compression crc32 context semantics globalcontext pcodecompile type database variable cover varnode jumptable emulateutil emulate opbehavior memstate override fspec modelrules cpool architecture prefersplit funcdata_op op heritage rangeutil block funcdata merge funcdata_varnode unionresolve dynamic userop pcodeinject typeop varmap stringmanage flow funcdata_block action transform coreaction constseq subflow double condexe blockaction ruleaction multiprecision options printc ifacedecomp interface capability testfunction callgraph graph paramid printlanguage prettyprint comment loadimage cast sleighbase filemanage
+BUILD_DIR ?= build
 
-SLEIGH_SRCS := $(SLEIGH_SRC_NAMES:%=sleigh/%.cpp)
+SRC_NAMES := xml slghsymbol grammar pcodeparse slghparse slghscan ruleparse slghpatexpress slghpattern slaformat marshal opcodes translate space pcoderaw address float compression crc32 context semantics globalcontext pcodecompile type database variable cover varnode jumptable emulateutil emulate opbehavior memstate override fspec modelrules cpool architecture prefersplit funcdata_op op heritage rangeutil block funcdata merge funcdata_varnode unionresolve dynamic userop pcodeinject typeop varmap stringmanage flow funcdata_block action transform coreaction constseq subflow double condexe blockaction ruleaction multiprecision options printc ifacedecomp interface capability testfunction callgraph graph paramid printlanguage prettyprint comment loadimage cast sleighbase filemanage
 
-SRCS := $(SLEIGH_SRCS)
-OBJS := $(SRCS:%.cpp=build/%.o)
+OBJS := $(SRC_NAMES:%=$(BUILD_DIR)/%.o)
 
-CXXFLAGS :=
+CXXFLAGS := -O3
 LDFLAGS := -lz
 
 YACC=bison
 
-build/main.elf: $(OBJS)
+.phony: all
+all: $(BUILD_DIR)/libsla.a $(BUILD_DIR)/slgh_compile.elf
+
+$(BUILD_DIR)/libsla.a: $(OBJS)
+	$(AR) crs $@ $^
+
+$(BUILD_DIR)/slgh_compile.elf: $(BUILD_DIR)/slgh_compile.o $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
-build/%.o: %.cpp
+$(BUILD_DIR)/%.o: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
-sleigh/grammar.cpp: sleigh/grammar.y
+src/grammar.cpp: src/grammar.y
 	$(YACC) -l -o $@ $<
-sleigh/xml.cpp: sleigh/xml.y
+src/xml.cpp: src/xml.y
 	$(YACC) -l -o $@ $<
-sleigh/pcodeparse.cpp: sleigh/pcodeparse.y
+src/pcodeparse.cpp: src/pcodeparse.y
 	$(YACC) -l -o $@ $<
-sleigh/slghparse.cpp: sleigh/slghparse.y
+src/slghparse.cpp: src/slghparse.y
 	$(YACC) -l -d -o $@ $<
-sleigh/slghscan.cpp: sleigh/slghscan.l
+src/slghscan.cpp: src/slghscan.l
 	$(LEX) -L -o$@ $<
-sleigh/ruleparse.cpp: sleigh/ruleparse.y
+src/ruleparse.cpp: src/ruleparse.y
 	$(YACC) -p ruleparse -d -o $@ $<
 
-sleigh/slghparse.hh: sleigh/slghparse.y sleigh/slghparse.cpp
-sleigh/slghscan.cpp: sleigh/slghparse.hh sleigh/slgh_compile.hh
-sleigh/ruleparse.hh: sleigh/ruleparse.y sleigh/ruleparse.cpp
+src/slghparse.hh: src/slghparse.y src/slghparse.cpp
+src/slghscan.cpp: src/slghparse.hh src/slgh_compile.hh
+src/ruleparse.hh: src/ruleparse.y src/ruleparse.cpp
 
 .phony: clean
 clean:

@@ -451,6 +451,19 @@ void* sleigh_bindings_ctx_insn_out_var(void* ctx) {
     return &s->m_insn.m_out_var;
 }
 
+size_t sleigh_bindings_ctx_insn_in_vars_amount(void* ctx) {
+    BindingsSleigh* s = (BindingsSleigh*)ctx;
+    return s->m_insn.m_in_vars_amount;
+}
+
+void* sleigh_bindings_ctx_insn_in_var(void* ctx, size_t index) {
+    BindingsSleigh* s = (BindingsSleigh*)ctx;
+    if (index >= s->m_insn.m_in_vars_amount) {
+        return nullptr;
+    }
+    return &s->m_insn.m_in_vars[index];
+}
+
 uint64_t sleigh_bindings_varnode_offset(void* varnode) {
     VarnodeData* v = (VarnodeData*)varnode;
     return v->offset;
